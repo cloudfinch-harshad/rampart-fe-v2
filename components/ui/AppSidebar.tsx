@@ -272,7 +272,7 @@ export function AppSidebar({ isCollapsed = false, onToggleCollapse }: AppSidebar
   
   return (
     <div className={cn(
-      "bg-white border-r border-gray-200 h-screen overflow-y-auto flex flex-col transition-all duration-300 ease-in-out",
+      "bg-white border-r border-gray-200 h-screen flex flex-col transition-all duration-300 ease-in-out",
       collapsed ? "w-16" : "w-64"
     )}>
       <div className={cn(
@@ -322,7 +322,7 @@ export function AppSidebar({ isCollapsed = false, onToggleCollapse }: AppSidebar
         </button>
       </div>
       
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         {!collapsed && (
           <div className="px-4 py-2 mt-2">
             <span className="text-sm font-medium text-gray-500">Platform</span>

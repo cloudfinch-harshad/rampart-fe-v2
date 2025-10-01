@@ -84,17 +84,23 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   // Otherwise, render the full layout with sidebar and navbar
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Left Sidebar */}
-      <AppSidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={toggleSidebar} />
+    <div className="flex h-screen w-full bg-gray-50 overflow-hidden">
+      {/* Left Sidebar - Fixed position */}
+      <div className="h-screen flex-shrink-0">
+        <AppSidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={toggleSidebar} />
+      </div>
       
-      <div className="flex-1">
-        {/* Top Navigation */}
-        <Navbar onToggleSidebar={toggleSidebar} />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Navigation - Fixed position */}
+        <div className="sticky top-0 z-30 bg-white shadow-sm">
+          <Navbar onToggleSidebar={toggleSidebar} />
+        </div>
         
-        {/* Main Content */}
-        <div className="p-4 w-full bg-gray-50">
-          {children}
+        {/* Main Content - Scrollable */}
+        <div className="flex-1 overflow-auto" style={{ height: 'calc(100vh - 64px)' }}>
+          <div className="p-4 w-full bg-gray-50 h-full">
+            {children}
+          </div>
         </div>
       </div>
     </div>
