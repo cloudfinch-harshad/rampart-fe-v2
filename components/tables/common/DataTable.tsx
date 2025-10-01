@@ -2,21 +2,15 @@
 
 import { ReactNode, useState, useEffect } from "react"
 import { ArrowUpDown, ArrowUpAZ, ArrowDownAZ } from "lucide-react"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
-import { Pagination } from "@/components/ui/Pagination"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
+import { Pagination } from "../../../components/ui/Pagination"
 import { SearchBar } from "./SearchBar"
 import { FilterPopover, FilterTab, DropdownOption } from "./FilterPopover"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "../../../components/ui/badge"
 import { FilterBadges, FilterGroup } from "./FilterBadges"
-import { useTableFilters, FilterConfig, FilterType, SearchConfig } from "@/hooks/useTableFilters"
-import { LocationData } from "@/types/locations"
+import type { FilterConfig, FilterType, SearchConfig } from "../../../hooks/useTableFilters"
+import { useTableFilters } from "../../../hooks/useTableFilters"
+import { LocationData } from "../../../types/locations"
 
 
 interface Column<T> {
@@ -158,7 +152,7 @@ export function DataTable<T>({
       const selected = 'selected' in config && config.selected ? config.selected : (filterSelections[config.id] || [])
       // Pass the API endpoint for select-search filters
       const api = config.api || ''
-      const onToggle = (value: string | { value: string; label: string } | null) => {
+      const onToggle = (value: string | DropdownOption | null) => {
         if ('setSelected' in config && config.setSelected) {
           // Handle different filter types
           if (config.filterType === 'select-search') {
@@ -166,13 +160,14 @@ export function DataTable<T>({
             if (value === null) {
               config.setSelected(null);
             } else {
-              config.setSelected(value);
+              // Wrap single value in array for consistency
+              config.setSelected([value]);
             }
           } else if (config.filterType === 'radio' || config.filterType === 'select') {
             // For radio and select, we either select the new value or clear all
             if (value === null) return;
             // Check if the value is in the selected array
-            const isSelected = selected.some(item => {
+            const isSelected = selected.some((item: string | DropdownOption) => {
               if (typeof item === 'string' && typeof value === 'string') {
                 return item === value;
               } else if (typeof item === 'object' && typeof value === 'object') {
@@ -187,7 +182,7 @@ export function DataTable<T>({
             // For checkboxes (default), toggle the selection
             if (value === null) return;
             // Check if the value is in the selected array
-            const isSelected = selected.some(item => {
+            const isSelected = selected.some((item: string | DropdownOption) => {
               if (typeof item === 'string' && typeof value === 'string') {
                 return item === value;
               } else if (typeof item === 'object' && typeof value === 'object') {
@@ -197,7 +192,7 @@ export function DataTable<T>({
             });
             
             const newSelected = isSelected
-              ? selected.filter(item => {
+              ? selected.filter((item: string | DropdownOption) => {
                   if (typeof item === 'string' && typeof value === 'string') {
                     return item !== value;
                   } else if (typeof item === 'object' && typeof value === 'object') {
@@ -270,7 +265,7 @@ export function DataTable<T>({
       const values = 'selected' in config && config.selected ? config.selected : (filterSelections[config.id] || [])
       const onRemove = (value: string | DropdownOption) => {
         if ('setSelected' in config && config.setSelected) {
-          const newSelected = values.filter(item => {
+          const newSelected = values.filter((item: string | DropdownOption) => {
             if (typeof item === 'string' && typeof value === 'string') {
               return item !== value;
             } else if (typeof item === 'object' && typeof value === 'object') {
@@ -393,12 +388,12 @@ export function DataTable<T>({
           </TableHeader>
           <TableBody>
             {currentData.length > 0 ? (
-              currentData.map((item, rowIndex) => (
+              currentData.map((item: T, rowIndex: number) => (
                 <TableRow 
                   key={rowIndex} 
                   className={`${selectedRowId && rowIdField && item[rowIdField as keyof T] === selectedRowId ? 'bg-green-50 dark:bg-green-900/20' : ''} hover:bg-muted/30`}
                 >
-                  {columns.map((column, colIndex) => {
+                  {columns.map((column, colIndex: number) => {
                     // Determine alignment based on column position
                     const getAlignmentClass = () => {
                       if (colIndex === 0) return 'text-left'
