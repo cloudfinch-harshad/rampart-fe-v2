@@ -13,8 +13,11 @@ export function middleware(request: NextRequest) {
   // Get the token from cookies
   const token = request.cookies.get('authToken')?.value;
   
-  // Skip middleware for API routes to avoid interference with API calls
-  if (pathname.startsWith('/api')) {
+  // Skip middleware for API routes and static assets
+  if (pathname.startsWith('/api') || 
+      pathname.startsWith('/_next') || 
+      pathname.includes('.') || 
+      pathname === '/favicon.ico') {
     return NextResponse.next();
   }
   
@@ -28,6 +31,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
   
+  // For all other cases, continue
   return NextResponse.next();
 }
 

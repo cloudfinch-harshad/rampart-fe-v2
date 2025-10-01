@@ -35,6 +35,11 @@ export interface RegisterPayload {
 // Add request interceptor to include auth token for protected routes
 api.interceptors.request.use(
   (config) => {
+    // Skip adding token for login and register endpoints
+    if (config.url === 'login' || config.url === 'register-company') {
+      return config;
+    }
+    
     const token = localStorage.getItem('authToken');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -44,19 +49,28 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Add response interceptor to handle unauthorized responses
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401 && error.config.url !== 'login') {
+      // Redirect to login page if we're in a browser environment
+      // Token clearing is now handled by the authContext
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // API service functions
 export const apiService = {
   // Auth endpoints
   login: async (payload: LoginPayload): Promise<ApiResponse> => {
     try {
       const response = await api.post<ApiResponse>('login', payload);
-      if (response.data.jwtToken) {
-        // Store token in localStorage for API requests
-        localStorage.setItem('authToken', response.data.jwtToken);
-        
-        // Store token in cookies for middleware
-        document.cookie = `authToken=${response.data.jwtToken}; path=/; max-age=86400; SameSite=Strict`;
-      }
+      // Token storage is now handled by the syncToken helper in authContext
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
@@ -70,13 +84,7 @@ export const apiService = {
   register: async (payload: RegisterPayload): Promise<ApiResponse> => {
     try {
       const response = await api.post<ApiResponse>('register-company', payload);
-      if (response.data.jwtToken) {
-        // Store token in localStorage for API requests
-        localStorage.setItem('authToken', response.data.jwtToken);
-        
-        // Store token in cookies for middleware
-        document.cookie = `authToken=${response.data.jwtToken}; path=/; max-age=86400; SameSite=Strict`;
-      }
+      // Token storage is now handled by the syncToken helper in authContext
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
@@ -120,9 +128,9 @@ export const apiService = {
     }
   },
 
-  // Logout function to clear token
+  // Logout function - token clearing is now handled by syncToken helper in authContext
   logout: (): void => {
-    localStorage.removeItem('authToken');
-    document.cookie = 'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    // This is now just a placeholder as token clearing is handled in authContext
+    // Keeping this method for API consistency
   },
 };

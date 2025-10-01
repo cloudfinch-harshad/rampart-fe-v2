@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
 
 export default function DashboardPage() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
   
   useEffect(() => {
@@ -33,10 +33,7 @@ export default function DashboardPage() {
                 Welcome, {user?.firstName || 'User'}
               </span>
               <button 
-                onClick={() => {
-                  useAuth().logout();
-                  router.push('/login');
-                }}
+                onClick={() => logout()}
                 className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Logout
