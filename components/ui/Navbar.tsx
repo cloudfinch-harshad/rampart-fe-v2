@@ -1,17 +1,27 @@
 'use client';
 
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface NavbarProps {
   companyName?: string;
+  onToggleSidebar?: () => void;
 }
 
-export function Navbar({ companyName = "Mayert Inc" }: NavbarProps) {
+export function Navbar({ companyName = "Mayert Inc", onToggleSidebar }: NavbarProps) {
   return (
     <div className="flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-white">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        {onToggleSidebar && (
+          <button 
+            onClick={onToggleSidebar}
+            className="p-1 rounded-md hover:bg-gray-100"
+            aria-label="Toggle sidebar"
+          >
+            <Menu className="h-5 w-5 text-gray-500" />
+          </button>
+        )}
         <button className="flex items-center gap-2 text-blue-600 font-medium">
           <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />

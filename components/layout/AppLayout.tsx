@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/authContext';
 import { AppSidebar } from '@/components/ui/AppSidebar';
@@ -19,6 +19,24 @@ export function AppLayout({ children }: AppLayoutProps) {
   
   const router = useRouter();
   const pathname = usePathname();
+  
+  // State for sidebar collapse
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
+  // Load sidebar state from localStorage
+  useEffect(() => {
+    const storedState = localStorage.getItem('sidebarCollapsed');
+    if (storedState) {
+      setIsSidebarCollapsed(storedState === 'true');
+    }
+  }, []);
+  
+  // Toggle sidebar collapsed state
+  const toggleSidebar = () => {
+    const newState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', String(newState));
+  };
   
   // List of routes where we don't want to show the layout
   const authRoutes = ['/login', '/register', '/forgot-password'];
@@ -68,11 +86,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Left Sidebar */}
-      <AppSidebar />
+      <AppSidebar isCollapsed={isSidebarCollapsed} onToggleCollapse={toggleSidebar} />
       
       <div className="flex-1">
         {/* Top Navigation */}
-        <Navbar />
+        <Navbar onToggleSidebar={toggleSidebar} />
         
         {/* Main Content */}
         <div className="p-4 w-full bg-gray-50">
