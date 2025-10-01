@@ -49,7 +49,7 @@ const SidebarItem = ({ item, isActive, level = 0, sectionTitle, isCollapsed = fa
       )}>
         {hasChildren ? (
           isCollapsed ? (
-            <Tooltip>
+            <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <button 
                   onClick={handleToggle}
@@ -67,10 +67,14 @@ const SidebarItem = ({ item, isActive, level = 0, sectionTitle, isCollapsed = fa
                   {item.children && item.children.length > 0 && (
                     <div className="text-xs space-y-1">
                       {item.children.map((child, idx) => (
-                        <div key={idx} className="flex items-center gap-1">
+                        <Link 
+                          href={child.href} 
+                          key={idx} 
+                          className="flex items-center gap-1 py-1 px-1 hover:bg-gray-100 rounded-sm"
+                        >
                           {child.icon && <child.icon className="w-3 h-3 text-amber-600" />}
                           <span className="text-amber-600">{child.title}</span>
-                        </div>
+                        </Link>
                       ))}
                     </div>
                   )}
@@ -102,7 +106,7 @@ const SidebarItem = ({ item, isActive, level = 0, sectionTitle, isCollapsed = fa
           )
         ) : (
           isCollapsed ? (
-            <Tooltip>
+            <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <Link 
                   href={item.href} 
@@ -166,16 +170,26 @@ const UserProfile = ({ isCollapsed = false }) => {
   if (isCollapsed) {
     return (
       <div className="border-t border-gray-200 mt-auto py-2 flex justify-center">
-        <Tooltip>
+        <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600 cursor-pointer">
               {user?.name?.charAt(0) || 'J'}
             </div>
           </TooltipTrigger>
-          <TooltipContent side="right">
-            <div className="py-1">
+          <TooltipContent side="right" className="p-0 overflow-hidden">
+            <div className="p-2">
               <div className="font-medium">{user?.name || 'John Doe'}</div>
-              <div className="text-xs text-gray-500">{user?.email || 'john@example.com'}</div>
+              <div className="text-xs text-gray-500 mb-2">{user?.email || 'john@example.com'}</div>
+              <div className="border-t border-gray-100 pt-1 space-y-1">
+                <Link href="/profile" className="flex items-center gap-2 py-1 px-1 text-sm text-gray-700 hover:bg-gray-100 rounded-sm">
+                  <User className="w-3 h-3" />
+                  <span>Profile</span>
+                </Link>
+                <button className="w-full flex items-center gap-2 py-1 px-1 text-sm text-red-600 hover:bg-gray-100 rounded-sm text-left">
+                  <LogOut className="w-3 h-3" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </TooltipContent>
         </Tooltip>
@@ -266,14 +280,16 @@ export function AppSidebar({ isCollapsed = false, onToggleCollapse }: AppSidebar
         collapsed ? "p-2 justify-center" : "p-4"
       )}>
         {collapsed ? (
-          <Tooltip>
+          <Tooltip delayDuration={0}>
             <TooltipTrigger asChild>
-              <div className="w-8 h-8 rounded bg-cyan-100 flex items-center justify-center cursor-pointer">
-                <span className="text-cyan-600 font-bold text-lg">R</span>
-              </div>
+              <Link href="/dashboard" className="block">
+                <div className="w-8 h-8 rounded bg-cyan-100 flex items-center justify-center cursor-pointer">
+                  <span className="text-cyan-600 font-bold text-lg">R</span>
+                </div>
+              </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">
-              <div>
+            <TooltipContent side="right" className="p-0 overflow-hidden">
+              <div className="p-2">
                 <div className="font-bold">Rampart</div>
                 <div className="text-xs text-gray-500">Logistics Platform</div>
               </div>
