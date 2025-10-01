@@ -1,23 +1,82 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { sidebarNavigation, NavItem } from '@/lib/navigation';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SidebarItemProps {
-  href: string;
-  children: React.ReactNode;
-  isActive?: boolean;
+  item: NavItem;
+  isActive: boolean;
+  level?: number;
 }
 
-const SidebarItem = ({ href, children, isActive }: SidebarItemProps) => {
+const SidebarItem = ({ item, isActive, level = 0 }: SidebarItemProps) => {
+  const pathname = usePathname();
+  const [isExpanded, setIsExpanded] = useState(item.isExpanded || false);
+  const Icon = item.icon;
+  const hasChildren = item.children && item.children.length > 0;
+  const paddingLeft = level > 0 ? `pl-${level * 4}` : '';
+  
+  const handleToggle = (e: React.MouseEvent) => {
+    if (hasChildren) {
+      e.preventDefault();
+      setIsExpanded(!isExpanded);
+    }
+  };
+  
   return (
-    <div className={cn("px-4 py-2", isActive && "bg-blue-50")}>
-      <Link href={href} className="w-full text-left text-gray-700 py-1 block">
-        {children}
-      </Link>
-    </div>
+    <>
+      <div className={cn("px-4 py-2", isActive && "bg-blue-50")}>
+        {hasChildren ? (
+          <button 
+            onClick={handleToggle}
+            className={cn(
+              "w-full text-left text-gray-700 py-1 flex items-center justify-between",
+              paddingLeft
+            )}
+          >
+            <div className="flex items-center gap-2">
+              {Icon && <Icon className="w-5 h-5" />}
+              <span>{item.title}</span>
+            </div>
+            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        ) : (
+          <Link 
+            href={item.href} 
+            className={cn(
+              "w-full text-left py-1 flex items-center gap-2",
+              isActive ? "text-blue-600 font-medium" : "text-gray-700",
+              paddingLeft
+            )}
+          >
+            {Icon && <Icon className="w-5 h-5" />}
+            <span>{item.title}</span>
+          </Link>
+        )}
+      </div>
+      
+      {hasChildren && isExpanded && (
+        <div className="bg-gray-50">
+          {item.children?.map((child, index) => {
+            const childPath = child.href;
+            const isChildActive = pathname === childPath;
+            
+            return (
+              <SidebarItem 
+                key={`${child.href}-${index}`}
+                item={child}
+                isActive={isChildActive}
+                level={level + 1}
+              />
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 };
 
@@ -25,7 +84,7 @@ export function AppSidebar() {
   const pathname = usePathname();
   
   return (
-    <div className="w-52 bg-white border-r border-gray-200 h-screen">
+    <div className="w-64 bg-white border-r border-gray-200 h-screen overflow-y-auto">
       <div className="p-4">
         <div className="flex items-center">
           <span className="text-xl font-bold text-blue-600">rampart</span>
@@ -33,52 +92,18 @@ export function AppSidebar() {
       </div>
       
       <div className="mt-4">
-        <div className="px-4 py-2">
-          <Link href="/dashboard" className="w-full text-left text-blue-600 font-medium py-1 block">
-            HOME
-          </Link>
-        </div>
-        
-        <div className="px-4 py-2">
-          <button className="w-full text-left text-gray-700 py-1 flex items-center">
-            <span>Audit Management</span>
-            <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-        
-        <SidebarItem href="/gri" isActive={pathname === '/gri'}>
-          GRI
-        </SidebarItem>
-        
-        <SidebarItem href="/dashboard" isActive={pathname === '/dashboard'}>
-          Dashboard
-        </SidebarItem>
-        
-        <SidebarItem href="/planning" isActive={pathname === '/planning'}>
-          Planning
-        </SidebarItem>
-        
-        <SidebarItem href="/esg-aura" isActive={pathname === '/esg-aura'}>
-          ESG Aura
-        </SidebarItem>
-        
-        <SidebarItem href="/sdg-goals" isActive={pathname === '/sdg-goals'}>
-          SDG Goals
-        </SidebarItem>
-        
-        <SidebarItem href="/compliance-hub" isActive={pathname === '/compliance-hub'}>
-          Compliance Hub
-        </SidebarItem>
-        
-        <SidebarItem href="/capas" isActive={pathname === '/capas'}>
-          CAPAs
-        </SidebarItem>
-        
-        <SidebarItem href="/collaborate" isActive={pathname === '/collaborate'}>
-          Collaborate
-        </SidebarItem>
+        {sidebarNavigation.map((item, index) => {
+          const isActive = pathname === item.href || 
+            (item.children?.some(child => pathname === child.href) || false);
+          
+          return (
+            <SidebarItem 
+              key={`${item.href}-${index}`}
+              item={item}
+              isActive={isActive}
+            />
+          );
+        })}
       </div>
     </div>
   );
