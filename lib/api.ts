@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
-// API base URL
-const API_BASE_URL = 'http://localhost:9000/';
+// API base URL - use environment variable or fallback to development URL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000/';
 
 // Create axios instance
 const api = axios.create({
@@ -69,14 +69,26 @@ export const apiService = {
   // Auth endpoints
   login: async (payload: LoginPayload): Promise<ApiResponse> => {
     try {
+      console.log('API Service: Sending login request to:', `${API_BASE_URL}login`);
+      console.log('API Service: Login payload:', { email: payload.email });
+      
       const response = await api.post<ApiResponse>('login', payload);
+      console.log('API Service: Login response status:', response.status);
+      
       // Token storage is now handled by the syncToken helper in authContext
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
+      console.error('API Service: Login error:', {
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        data: axiosError.response?.data,
+        message: axiosError.message
+      });
+      
       return {
         success: false,
-        message: axiosError.response?.data?.message || 'Login failed',
+        message: axiosError.response?.data?.message || 'Login failed: ' + axiosError.message,
       };
     }
   },

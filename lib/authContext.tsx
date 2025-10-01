@@ -155,26 +155,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
+      console.log('AuthContext: Attempting login with API service');
       const response = await apiService.login({ email, password });
+      console.log('AuthContext: Login API response:', response);
+      
       if (response.success && response.jwtToken) {
+        console.log('AuthContext: Login successful, setting token');
         // Synchronize token between localStorage and cookies
         syncToken(response.jwtToken);
         
         // Only try to get user data if login was successful
         try {
+          console.log('AuthContext: Fetching user data');
           const userResponse = await apiService.getUser();
+          console.log('AuthContext: User data response:', userResponse);
+          
           if (userResponse.success && userResponse.data) {
+            console.log('AuthContext: Setting user data');
             setUser(userResponse.data);
           }
         } catch (userError) {
-          console.error('Failed to fetch user data:', userError);
+          console.error('AuthContext: Failed to fetch user data:', userError);
           // Continue with login success even if user data fetch fails
         }
         return { success: true, message: response.message };
       }
+      console.error('AuthContext: Login failed:', response.message);
       return { success: false, message: response.message };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('AuthContext: Login error:', error);
       return { success: false, message: 'Login failed. Please try again.' };
     } finally {
       setIsLoading(false);

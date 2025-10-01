@@ -34,7 +34,10 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
+      console.log('Attempting login with:', { email: data.email });
+      
       const result = await login(data.email, data.password);
+      console.log('Login result:', result);
       
       if (result.success) {
         toast.success(result.message || 'Login successful');
@@ -42,14 +45,16 @@ export default function LoginPage() {
         // Add a small delay to ensure the token is properly set in cookies
         // before redirecting to avoid the middleware redirecting back to login
         setTimeout(() => {
+          console.log('Redirecting to dashboard after successful login');
           router.push('/dashboard');
-        }, 100);
+        }, 500); // Increased delay to ensure token is set
       } else {
+        console.error('Login failed:', result.message);
         toast.error(result.message || 'Login failed');
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast.error('An unexpected error occurred');
-      console.error(error);
     } finally {
       setIsLoading(false);
     }
