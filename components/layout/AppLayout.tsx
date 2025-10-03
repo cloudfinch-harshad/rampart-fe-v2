@@ -39,7 +39,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
   
   // List of routes where we don't want to show the layout
-  const authRoutes = ['/login', '/register', '/forgot-password'];
+  const authRoutes = ['/login', '/register', '/forgot-password', '/vendor-submission/:accessCode'];
   
   // Check if current path is in the auth routes
   const isAuthRoute = authRoutes.includes(pathname);

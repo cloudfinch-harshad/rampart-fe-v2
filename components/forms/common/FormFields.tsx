@@ -76,7 +76,11 @@ export function TextField<
             name={name}
             render={({ field }) => (
                 <FormItem className={className || "mt-1"}>
-                    <FormLabel className={ !label ? "flex justify-end items-end" : ""}>{icon && <span className="mr-2">{icon}</span>} {label}{required && <span className="flex justify-end text-destructive ml-1">*</span>}</FormLabel>
+                    <FormLabel className={ !label ? "flex justify-start items-end" : "flex justify-start items-end"}>
+                        {icon && <span className="mr-2">{icon}</span>} 
+                        {label}
+                        {required && <span className="flex justify-end text-destructive ml-1">*</span>}
+                        </FormLabel>
                     <FormControl>
                         <Input
                             placeholder={placeholder}
@@ -293,7 +297,7 @@ export function DateField<
             name={name}
             render={({ field }) => (
                 <FormItem className={cn(className, "mt-1")}>
-                    <FormLabel className={ !label ? "flex justify-end items-end" : ""}>
+                    <FormLabel className={ !label ? "flex justify-end items-end" : "flex justify-start items-end"}>
                         {icon && <span className="mr-2">{icon}</span>} {label}
                         {required && <span className="flex justify-end text-destructive ml-1">*</span>}
                     </FormLabel>

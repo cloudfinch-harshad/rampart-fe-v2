@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useApiMutation } from '@/hooks/useApi';
 import { DataTable } from '@/components/tables/common/DataTable';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, FileDown, Send, Eye, Trash2 } from 'lucide-react';
+import { PlusCircle, FileDown, Send, Eye, Trash2, Link, Copy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
@@ -180,6 +180,43 @@ export function VendorManagement() {
       header: 'Deadline',
       accessorKey: 'deadlineDate',
       className: 'w-1/8',
+    },
+    {
+      header: 'Vendor Link',
+      className: 'w-1/6',
+      cell: (item: VendorData) => {
+        const vendorLink = `http://localhost:3000/vendor-submission/${item.accessCode}`;
+        
+        const copyToClipboard = (e: React.MouseEvent) => {
+          e.stopPropagation();
+          navigator.clipboard.writeText(vendorLink);
+          toast.success('Link copied to clipboard');
+        };
+        
+        return (
+          <div className="flex items-center gap-2">
+            <a 
+              href={vendorLink} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 hover:underline flex items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Link className="h-4 w-4 mr-1" />
+              <span className="truncate max-w-[150px]">{vendorLink}</span>
+            </a>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6 p-1 text-gray-500 hover:text-gray-700" 
+              onClick={copyToClipboard}
+            >
+              <Copy className="h-4 w-4" />
+              <span className="sr-only">Copy link</span>
+            </Button>
+          </div>
+        );
+      }
     },
     {
       header: 'Actions',

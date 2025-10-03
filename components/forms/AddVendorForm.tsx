@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Form } from '@/components/ui/form';
 import { TextField, DateField } from '@/components/forms/common/FormFields';
-import { X } from 'lucide-react';
+import { X, RefreshCw } from 'lucide-react';
 
 // Define the form schema using Zod
 const vendorFormSchema = z.object({
@@ -45,6 +45,20 @@ interface VendorResponse {
   message: string;
 }
 
+// Function to generate a random access code
+function generateAccessCode(length = 6): string {
+  // Characters to use (excluding similar-looking characters like 0/O, 1/I/l)
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let result = '';
+  
+  // Generate random string of specified length
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  
+  return result;
+}
+
 export function AddVendorForm({ isOpen, onClose, onSuccess }: AddVendorFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,8 +74,8 @@ export function AddVendorForm({ isOpen, onClose, onSuccess }: AddVendorFormProps
       vendorEmail: '',
       contactName: '',
       contactNumber: '',
-      accessCode: Math.floor(100000 + Math.random() * 900000).toString(), // Generate random 6-digit code
-      deadlineDate: new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0], // Default to 30 days from now
+      accessCode: generateAccessCode(), // Generate random access code
+      deadlineDate: '', // Default to 30 days from now
     },
   });
 
@@ -74,7 +88,7 @@ export function AddVendorForm({ isOpen, onClose, onSuccess }: AddVendorFormProps
       vendorEmail: data.vendorEmail,
       contactName: data.contactName,
       contactNumber: data.contactNumber,
-      accessCode: data.accessCode || Math.floor(100000 + Math.random() * 900000).toString(), // Ensure accessCode is always a string
+      accessCode: data.accessCode || generateAccessCode(), // Use the generated access code if not provided
       deadlineDate: data.deadlineDate,
     };
 
@@ -129,6 +143,7 @@ export function AddVendorForm({ isOpen, onClose, onSuccess }: AddVendorFormProps
               name="contactName"
               label="Contact Person"
               placeholder="Enter contact person name"
+              required
             />
 
             <TextField
@@ -136,20 +151,39 @@ export function AddVendorForm({ isOpen, onClose, onSuccess }: AddVendorFormProps
               name="contactNumber"
               label="Phone Number"
               placeholder="Enter phone number"
+              required
             />
 
-            <TextField
-              control={form.control}
-              name="accessCode"
-              label="Access Code"
-              placeholder="Enter access code"
-            />
+            <div className="relative">
+              <TextField
+                control={form.control}
+                name="accessCode"
+                label="Access Code"
+                placeholder="Enter access code"
+                disabled
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="absolute right-0 top-8 mr-2"
+                onClick={() => {
+                  const newCode = generateAccessCode();
+                  form.setValue('accessCode', newCode);
+                  toast.success('New access code generated');
+                }}
+              >
+                <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                Generate
+              </Button>
+            </div>
 
             <DateField
               control={form.control}
               name="deadlineDate"
               label="Deadline Date"
               placeholder="Select deadline date"
+              required
             />
 
           <DialogFooter className="mt-6 flex col-span-full justify-end gap-2">
