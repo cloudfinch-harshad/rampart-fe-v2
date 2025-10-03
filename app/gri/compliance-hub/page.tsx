@@ -1,7 +1,7 @@
 'use client';
 
-import { BrsrCompliance } from '@/components/compliance/BrsrCompliance';
-import { VendorManagement } from '@/components/compliance/VendorManagement';
+import { BrsrCompliance } from '@/components/views/gri/compliance-hub/brsr/BrsrCompliance';
+import { VendorManagement } from '@/components/views/gri/compliance-hub/vendors/VendorManagement';
 import { useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ClipboardCheck, Users } from 'lucide-react';
