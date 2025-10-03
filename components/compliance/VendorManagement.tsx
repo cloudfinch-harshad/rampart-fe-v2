@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { PlusCircle, FileDown, Send, Eye, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { MoreHorizontal } from 'lucide-react';
 import { SearchConfig } from '@/hooks/useTableFilters';
+
 
 interface VendorData {
   id: string;
@@ -167,32 +168,49 @@ export function VendorManagement() {
       cell: (item: VendorData) => {
         return (
           <div className="flex justify-end">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
+                  <span className="sr-only">Actions</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleSendInvitation(item.id)}>
-                  <Send className="mr-2 h-4 w-4" />
-                  <span>Send Invitation</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleViewSubmission(item.id)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  <span>View Submission</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleDownloadData(item.id)}>
-                  <FileDown className="mr-2 h-4 w-4" />
-                  <span>Download Data</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleRemoveVendor(item.id)} className="text-red-600 hover:text-red-700">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  <span>Remove Vendor</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </TooltipTrigger>
+              <TooltipContent className="p-0 w-48" sideOffset={5}>
+                <div className="flex flex-col w-full bg-white rounded-md overflow-hidden">
+                  <button 
+                    onClick={() => handleSendInvitation(item.id)} 
+                    className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left"
+                  >
+                    <Send className="mr-2 h-4 w-4" />
+                    <span>Send Invitation</span>
+                  </button>
+                  <div className="h-px bg-gray-100 mx-1 my-0.5"></div>
+                  <button 
+                    onClick={() => handleViewSubmission(item.id)} 
+                    className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left"
+                  >
+                    <Eye className="mr-2 h-4 w-4" />
+                    <span>View Submission</span>
+                  </button>
+                  <div className="h-px bg-gray-100 mx-1 my-0.5"></div>
+                  <button 
+                    onClick={() => handleDownloadData(item.id)} 
+                    className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left"
+                  >
+                    <FileDown className="mr-2 h-4 w-4" />
+                    <span>Download Data</span>
+                  </button>
+                  <div className="h-px bg-gray-100 mx-1 my-0.5"></div>
+                  <button 
+                    onClick={() => handleRemoveVendor(item.id)} 
+                    className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    <span>Remove Vendor</span>
+                  </button>
+                </div>
+              </TooltipContent>
+            </Tooltip>
           </div>
         );
       }
@@ -263,8 +281,9 @@ export function VendorManagement() {
   };
 
   return (
-    <div className="space-y-6 h-full overflow-y-auto pb-8">
-      <div className="bg-white p-6 rounded-lg shadow-sm">
+    <TooltipProvider>
+      <div className="space-y-6 h-full overflow-y-auto pb-8">
+        <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="text-sm text-gray-500 mb-4">
           Add and manage your vendors for BRSR compliance reporting. Each vendor will receive a unique access code and URL to submit their own BRSR form.
         </div>
@@ -304,7 +323,8 @@ export function VendorManagement() {
         <div className="text-sm text-gray-500 mt-4">
           {data?.total || 0} vendors added
         </div>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
