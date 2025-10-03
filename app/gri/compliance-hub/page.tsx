@@ -1,6 +1,7 @@
 'use client';
 
 import { BrsrCompliance } from '@/components/compliance/BrsrCompliance';
+import { VendorManagement } from '@/components/compliance/VendorManagement';
 import { useState } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ClipboardCheck, Users } from 'lucide-react';
@@ -11,9 +12,9 @@ export default function ComplianceHubPage() {
   const handleModeChange = (value: string) => {
     setMode(value as 'compliance' | 'vendor');
   };
+  
   return (
     <div className="flex flex-col gap-6 h-full">
-
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">{mode === 'compliance' ? 'SEBI BRSR Compliance' : 'Vendor Management'}</h1>
         <ToggleGroup 
@@ -33,9 +34,11 @@ export default function ComplianceHubPage() {
         </ToggleGroup>
       </div>
 
-
-      <BrsrCompliance isComplianceMode={mode === 'compliance'} />
-
+      {mode === 'compliance' ? (
+        <BrsrCompliance isComplianceMode={true} />
+      ) : (
+        <VendorManagement />
+      )}
     </div>
   );
 }

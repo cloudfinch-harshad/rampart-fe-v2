@@ -30,29 +30,29 @@ interface BrsrSectionProps {
 interface SaveBrsrItemPayload {
   brsrMasterId: string;
   brsrItemId: string | null;
-  vendorId: string | null;
+  vendorId?: string | null;
   response: string;
   notes: string;
 }
 
-export function BrsrComplianceSection({ 
-  sectionId, 
-  sectionName, 
-  sectionNumber, 
-  description, 
+export function BrsrComplianceSection({
+  sectionId,
+  sectionName,
+  sectionNumber,
+  description,
   items,
   onRefresh
 }: BrsrSectionProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [editingItem, setEditingItem] = useState<string | null>(null);
   const [editData, setEditData] = useState<{ response: string; notes: string }>({ response: '', notes: '' });
-  
+
   // API mutation hook for saving BRSR items
   const { mutate: saveBrsrItem, isPending: isSaving } = useApiMutation<any, SaveBrsrItemPayload>(
     'save-brsr-item',
     'POST'
   );
-  
+
   // Refresh function that calls the parent's onRefresh if available
   const refreshData = () => {
     console.log('Refreshing data...');
@@ -60,15 +60,15 @@ export function BrsrComplianceSection({
       onRefresh();
     }
   };
-  
+
   // Calculate completion percentage
   const completedItems = items.filter(item => item.response && item.response.trim() !== '').length;
   const totalItems = items.length;
   const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-  
+
   // Get section name based on section number
   const getSectionName = (num: number) => {
-    switch(num) {
+    switch (num) {
       case 1: return 'General Disclosures';
       case 2: return 'Management & Process';
       case 3: return 'Principle-wise Performance';
@@ -80,7 +80,7 @@ export function BrsrComplianceSection({
   return (
     <div className="mb-6 bg-white rounded-lg shadow-sm overflow-hidden">
       {/* Section Header */}
-      <div 
+      <div
         className="flex items-center p-4 cursor-pointer"
         onClick={() => setIsExpanded(!isExpanded)}
       >
@@ -103,14 +103,14 @@ export function BrsrComplianceSection({
           {completionPercentage}% items completed
         </div>
       </div>
-      
+
       {/* Section Content */}
       {isExpanded && (
         <div className="px-4 pb-4">
           <div className="text-sm text-gray-600 mb-4">
             {description || `This section covers ${getSectionName(sectionNumber).toLowerCase()} related to the company's sustainability practices.`}
           </div>
-          
+
           <ComplianceTable
             data={items.map(item => ({
               ...item,
@@ -187,7 +187,7 @@ export function BrsrComplianceSection({
                 align: 'center',
                 cell: (item) => {
                   const isEditing = editingItem === item.brsrMasterId;
-                  
+
                   const handleEditClick = () => {
                     if (!isEditing) {
                       setEditingItem(item.brsrMasterId);
@@ -197,17 +197,17 @@ export function BrsrComplianceSection({
                       });
                     }
                   };
-                  
+
                   const handleSaveClick = () => {
                     // Prepare the payload for the API
                     const payload: SaveBrsrItemPayload = {
                       brsrMasterId: item.brsrMasterId,
                       brsrItemId: item.brsrItemId,
-                      vendorId: item.vendorId,
+                      vendorId: '',
                       response: editData.response,
                       notes: editData.notes
                     };
-                    
+
                     // Call the API to save the changes
                     saveBrsrItem(payload, {
                       onSuccess: (data) => {
@@ -221,23 +221,23 @@ export function BrsrComplianceSection({
                       }
                     });
                   };
-                  
+
                   const handleCancelClick = () => {
                     setEditingItem(null);
                   };
-                  
+
                   return (
                     <div className="flex justify-center space-x-2">
                       {isEditing ? (
                         <>
-                          <button 
+                          <button
                             onClick={handleSaveClick}
                             className="p-1 rounded-full hover:bg-green-50 text-green-500"
                             title="Save changes"
                           >
                             <Save className="h-4 w-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={handleCancelClick}
                             className="p-1 rounded-full hover:bg-red-50 text-red-500"
                             title="Cancel"
@@ -247,29 +247,29 @@ export function BrsrComplianceSection({
                         </>
                       ) : (
                         <>
-                          <button 
+                          <button
                             onClick={handleEditClick}
                             className="p-1 rounded-full hover:bg-blue-50 text-blue-500"
                             title="Edit item"
                           >
                             <Pencil className="h-4 w-4" />
                           </button>
-                          <button 
+                          <button
                             onClick={() => {
                               // Prepare the payload for deletion (empty response and notes)
                               const payload: SaveBrsrItemPayload = {
                                 brsrMasterId: item.brsrMasterId,
                                 brsrItemId: item.brsrItemId,
-                                vendorId: item.vendorId,
+                                vendorId: '',
                                 response: '',
                                 notes: ''
                               };
-                              
+
                               // Call the API to delete the item's content
                               saveBrsrItem(payload, {
                                 onSuccess: (data) => {
-                                  toast.success('Item content cleared successfully');
-                                  refreshData(); // Refresh the data after successful deletion
+                                  toast.success(data.message);
+                                  if (data.success) refreshData(); // Refresh the data after successful deletion
                                 },
                                 onError: (error) => {
                                   toast.error('Failed to clear item: ' + (error?.message || 'Unknown error'));
@@ -292,7 +292,7 @@ export function BrsrComplianceSection({
             ]}
             maxHeight="[calc(100vh-300px)]"
           />
-          
+
           {/* Complete All Button */}
           {/* <div className="mt-4 flex justify-end">
             <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm">
