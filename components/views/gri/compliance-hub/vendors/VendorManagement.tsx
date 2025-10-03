@@ -185,7 +185,12 @@ export function VendorManagement() {
       header: 'Vendor Link',
       className: 'w-1/6',
       cell: (item: VendorData) => {
-        const vendorLink = `http://localhost:3000/vendor-submission/${item.accessCode}`;
+        // Get the base URL dynamically from the current window location
+        const baseUrl = typeof window !== 'undefined' ? 
+          `${window.location.protocol}//${window.location.host}` : 
+          process.env.NEXT_PUBLIC_BASE_URL;
+        
+        const vendorLink = `${baseUrl}/vendor-submission/${item.accessCode}`;
         
         const copyToClipboard = (e: React.MouseEvent) => {
           e.stopPropagation();
