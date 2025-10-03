@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useApiMutation } from '@/hooks/useApi';
 import { BrsrComplianceSection } from './BrsrComplianceSection';
 
@@ -40,14 +40,16 @@ interface BrsrItemsResponse {
   getBrsrSectionResponseList: BrsrSection[];
 }
 
-interface BrsrComplianceProps {
-  isComplianceMode: boolean;
-}
-
-export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
+export function BrsrCompliance() {
   
   // Use the API mutation hook to call the get-brsr-items endpoint
-  const { mutate: fetchBrsrItems, data, isPending, isError, error } = useApiMutation<BrsrItemsResponse, BrsrItemsPayload>(
+  const { 
+    mutate: fetchBrsrItems, 
+    data, 
+    isPending, 
+    isError, 
+    error 
+  } = useApiMutation<BrsrItemsResponse, BrsrItemsPayload>(
     'get-brsr-items',
     'POST'
   );
@@ -56,7 +58,7 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
   useEffect(() => {
     const payload: BrsrItemsPayload = {
       fy: "2025-2026",
-      vendorId: isComplianceMode ? "" : "some-vendor-id" // Use appropriate vendor ID when in vendor mode
+      vendorId: ""
     };
     
     // Call the API and log the response
@@ -68,28 +70,12 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
         console.error('Error fetching BRSR items:', error);
       }
     });
-  }, [fetchBrsrItems, isComplianceMode]);
-  
-  console.log('Current mode:', isComplianceMode ? 'Compliance Mode' : 'Vendor Mode');
-  
-  // Calculate overall completion percentage if data is available
-  const totalItems = data?.getBrsrSectionResponseList?.reduce(
-    (acc, section) => acc + section.getBrsrItemResponseList.length, 
-    0
-  ) || 0;
-  
-  const completedItems = data?.getBrsrSectionResponseList?.reduce(
-    (acc, section) => acc + section.getBrsrItemResponseList.filter(
-      item => item.response && item.response.trim() !== ''
-    ).length, 
-    0
-  ) || 0;
-  
-  const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+  }, [fetchBrsrItems]);
 
+  // Handle loading and error states
   if (isPending) {
     return (
-      <div className="flex items-center justify-center p-6 h-full">
+      <div className="flex items-center justify-center p-6">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -97,7 +83,7 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
 
   if (isError) {
     return (
-      <div className="text-red-500 p-6 bg-white rounded-lg shadow-sm h-full">
+      <div className="text-red-500 p-6 bg-white rounded-lg shadow-sm">
         Error loading compliance data: {error?.message || 'Unknown error'}
       </div>
     );
@@ -105,15 +91,30 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
 
   if (!data) {
     return (
-      <div className="text-gray-500 p-6 bg-white rounded-lg shadow-sm h-full">
+      <div className="text-gray-500 p-6 bg-white rounded-lg shadow-sm">
         No compliance data available
       </div>
     );
   }
 
+  // Calculate overall completion percentage
+  const totalItems = data.getBrsrSectionResponseList.reduce(
+    (acc, section) => acc + section.getBrsrItemResponseList.length, 
+    0
+  );
+  
+  const completedItems = data.getBrsrSectionResponseList.reduce(
+    (acc, section) => acc + section.getBrsrItemResponseList.filter(
+      item => item.response && item.response.trim() !== ''
+    ).length, 
+    0
+  );
+  
+  const completionPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
   return (
     <div className="space-y-6 h-full overflow-y-auto pb-8">
-      
+     
       
       {/* Overall Progress */}
       <div className="flex items-center space-x-6 bg-white p-6 rounded-lg shadow-sm">
