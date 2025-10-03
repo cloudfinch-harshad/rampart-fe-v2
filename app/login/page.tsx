@@ -45,8 +45,8 @@ export default function LoginPage() {
         // Add a small delay to ensure the token is properly set in cookies
         // before redirecting to avoid the middleware redirecting back to login
         setTimeout(() => {
-          console.log('Redirecting to dashboard after successful login');
-          router.push('/dashboard');
+          console.log('Redirecting to gri/compliance-hub after successful login');
+          router.push('/gri/compliance-hub');
         }, 500); // Increased delay to ensure token is set
       } else {
         console.error('Login failed:', result.message);

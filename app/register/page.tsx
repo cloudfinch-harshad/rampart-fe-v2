@@ -52,7 +52,7 @@ export default function RegisterPage() {
         // Add a small delay to ensure the token is properly set in cookies
         // before redirecting to avoid the middleware redirecting back to login
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/gri/compliance-hub');
         }, 100);
       } else {
         toast.error(result.message || 'Registration failed');

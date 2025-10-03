@@ -21,9 +21,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   
-  // If it's a public route and user is authenticated, redirect to dashboard
+  // If it's a public route and user is authenticated, redirect to gri/compliance-hub
   if (isPublicRoute && token) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/gri/compliance-hub', request.url));
   }
   
   // If it's not a public route and user is not authenticated, redirect to login

@@ -164,8 +164,14 @@ const SidebarItem = ({ item, isActive, level = 0, sectionTitle, isCollapsed = fa
 };
 
 const UserProfile = ({ isCollapsed = false }) => {
-  const { user } = useAuth() || { user: { name: "john yhtgfr", email: "harshad2@gmail.com" } };
+  const { user, logout } = useAuth() || { user: { name: "john yhtgfr", email: "harshad2@gmail.com" }, logout: () => {} };
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  const handleLogout = () => {
+    if (logout) {
+      logout();
+    }
+  };
   
   if (isCollapsed) {
     return (
@@ -185,7 +191,10 @@ const UserProfile = ({ isCollapsed = false }) => {
                   <User className="w-3 h-3" />
                   <span>Profile</span>
                 </Link>
-                <button className="w-full flex items-center gap-2 py-1 px-1 text-sm text-red-600 hover:bg-gray-100 rounded-sm text-left">
+                <button 
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 py-1 px-1 text-sm text-red-600 hover:bg-gray-100 rounded-sm text-left"
+                >
                   <LogOut className="w-3 h-3" />
                   <span>Logout</span>
                 </button>
@@ -221,7 +230,10 @@ const UserProfile = ({ isCollapsed = false }) => {
             <User className="w-4 h-4" />
             <span>Profile</span>
           </Link>
-          <button className="w-full flex items-center gap-3 px-1 py-2 text-sm text-red-600 hover:bg-gray-100 rounded text-left">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-1 py-2 text-sm text-red-600 hover:bg-gray-100 rounded text-left"
+          >
             <LogOut className="w-4 h-4" />
             <span>Logout</span>
           </button>
