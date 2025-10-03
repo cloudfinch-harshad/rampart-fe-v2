@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Pencil, Check } from 'lucide-react';
 import { BrsrComplianceItem } from './BrsrComplianceItem';
+import { ComplianceTable, ComplianceColumn } from './ComplianceTable';
 
 interface BrsrItem {
   brsrMasterId: string;
@@ -81,30 +82,74 @@ export function BrsrComplianceSection({
             {description || `This section covers ${getSectionName(sectionNumber).toLowerCase()} related to the company's sustainability practices.`}
           </div>
           
-          <div className="overflow-x-auto max-h-[calc(100vh-300px)]">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="py-3 px-4 text-left font-medium text-gray-500 w-12 text-center">#</th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-500">Requirement</th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-500">Response</th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-500">Notes</th>
-                  <th className="py-3 px-4 text-left font-medium text-gray-500 w-24 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => (
-                  <BrsrComplianceItem
-                    key={item.brsrMasterId}
-                    sequenceNumber={item.sequenceNumber}
-                    requirement={item.requirement}
-                    response={item.response}
-                    notes={item.notes}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ComplianceTable
+            data={items.map(item => ({
+              ...item,
+              id: item.brsrMasterId // Ensure id is available for the table
+            }))}
+            columns={[
+              {
+                header: '#',
+                accessorKey: 'sequenceNumber',
+                width: 'w-12',
+                align: 'center',
+                cell: (item) => {
+                  return (
+                    <div className="text-center rounded-full shadow-sm p-1 bg-gray-100">
+                      {item.sequenceNumber}
+                    </div>
+                  );
+                }
+              },
+              {
+                header: 'Requirement',
+                accessorKey: 'requirement',
+                align: 'left'
+              },
+              {
+                header: 'Response',
+                accessorKey: 'response',
+                cell: (item) => (
+                  item.response || (
+                    <span className="text-gray-400 text-sm">
+                      Click to add data...
+                    </span>
+                  )
+                )
+              },
+              {
+                header: 'Notes',
+                accessorKey: 'notes',
+                cell: (item) => (
+                  item.notes || (
+                    <span className="text-gray-400 text-sm">
+                      Click to add notes...
+                    </span>
+                  )
+                )
+              },
+              {
+                header: 'Actions',
+                width: 'w-24',
+                align: 'center',
+                cell: (item) => (
+                  <div className="flex justify-center space-x-2">
+                    <button 
+                      className="p-1 rounded-full hover:bg-blue-50 text-blue-500"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button 
+                      className="p-1 rounded-full hover:bg-red-50 text-red-500"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                  </div>
+                )
+              }
+            ]}
+            maxHeight="[calc(100vh-300px)]"
+          />
           
           {/* Complete All Button */}
           <div className="mt-4 flex justify-end">
