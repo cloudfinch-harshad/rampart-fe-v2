@@ -257,6 +257,7 @@ export function DateField<
     disabled,
 }: DateFieldProps<TFieldValues, TName>) {
     const [isOpen, setIsOpen] = useState(false);
+    const [captionLayout, setCaptionLayout] = useState<React.ComponentProps<typeof Calendar>["captionLayout"]>("dropdown");
     const containerRef = useRef<HTMLDivElement>(null);
     const { formState } = useFormContext();
 
@@ -321,37 +322,65 @@ export function DateField<
                                 {field.value ? formatDateForDisplay(field.value) : <span>{placeholder}</span>}
                             </button>
                             {isOpen && (
-                                <div className="absolute top-full left-0 z-50 mt-1">
+                                <div className="absolute top-full left-0 z-[100] mt-1">
                                     <div 
-                                        className="w-auto p-0 bg-white border border-gray-200 rounded-md shadow-lg"
+                                        className="bg-white border border-gray-200 rounded-md shadow-lg overflow-hidden"
                                         onClick={(e) => e.stopPropagation()}
                                     >
-                                        <Calendar
-                                            mode="single"
-                                            selected={field.value ? new Date(field.value) : undefined}
-                                            onSelect={(date: Date | undefined) => {
-                                                if (!date) {
-                                                    field.onChange(null);
+                                        <div className="p-0">
+                                            <Calendar 
+                                                className="w-64"
+                                                mode="single"
+                                                captionLayout={captionLayout}
+                                                selected={field.value ? new Date(field.value) : undefined}
+                                                onSelect={(date: Date | undefined) => {
+                                                    if (!date) {
+                                                        field.onChange(null);
+                                                        setIsOpen(false);
+                                                        return;
+                                                    }
+                                                    let selectedDate: Date;
+                                                    
+                                                    if (minDate && date < minDate) {
+                                                        selectedDate = minDate;
+                                                    } else if (maxDate && date > maxDate) {
+                                                        selectedDate = maxDate;
+                                                    } else {
+                                                        selectedDate = date;
+                                                    }
+                                                    
+                                                    // Convert date to ISO format with time
+                                                    field.onChange(formatDateToISO(selectedDate));
                                                     setIsOpen(false);
-                                                    return;
-                                                }
-                                                let selectedDate: Date;
-                                                
-                                                if (minDate && date < minDate) {
-                                                    selectedDate = minDate;
-                                                } else if (maxDate && date > maxDate) {
-                                                    selectedDate = maxDate;
-                                                } else {
-                                                    selectedDate = date;
-                                                }
-                                                
-                                                // Convert date to ISO format with time
-                                                field.onChange(formatDateToISO(selectedDate));
-                                                setIsOpen(false);
-                                            }}
-                                            disabled={(date: Date) => (minDate ? date < minDate : false) || (maxDate ? date > maxDate : false)}
-                                            initialFocus
-                                        />
+                                                }}
+                                                disabled={(date: Date) => (minDate ? date < minDate : false) || (maxDate ? date > maxDate : false)}
+                                                initialFocus
+                                            />
+                                            <div className="flex justify-between items-center p-2 border-t border-gray-100">
+                                                <div className="flex items-center space-x-2">
+                                                    <Select
+                                                        value={captionLayout}
+                                                        onValueChange={(value) => setCaptionLayout(value as React.ComponentProps<typeof Calendar>["captionLayout"])}
+                                                    >
+                                                        <SelectTrigger className="h-7 w-auto text-xs">
+                                                            <SelectValue placeholder="View" />
+                                                        </SelectTrigger>
+                                                        <SelectContent align="start" className="w-fit">
+                                                            <SelectItem value="dropdown">Month & Year</SelectItem>
+                                                            <SelectItem value="dropdown-months">Month Only</SelectItem>
+                                                            <SelectItem value="dropdown-years">Year Only</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <button 
+                                                    type="button"
+                                                    className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded"
+                                                    onClick={() => setIsOpen(false)}
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}

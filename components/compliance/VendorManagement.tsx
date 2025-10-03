@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { MoreHorizontal } from 'lucide-react';
 import { SearchConfig } from '@/hooks/useTableFilters';
+import { AddVendorForm } from '@/components/forms/AddVendorForm';
 
 
 interface VendorData {
@@ -52,6 +53,7 @@ export function VendorManagement() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [openTooltipId, setOpenTooltipId] = useState<string | null>(null);
+  const [isAddVendorFormOpen, setIsAddVendorFormOpen] = useState(false);
   
   // Use the API mutation hook to call the filter-brsr-vendors endpoint
   const { mutate: fetchVendors, data, isPending, isError, error } = useApiMutation<VendorListResponse, VendorListPayload>(
@@ -241,7 +243,7 @@ export function VendorManagement() {
 
   // Action handlers
   const handleAddVendor = () => {
-    toast.info('Add vendor functionality will be implemented');
+    setIsAddVendorFormOpen(true);
   };
 
   const handleDownloadReport = () => {
@@ -309,6 +311,11 @@ export function VendorManagement() {
   return (
     <TooltipProvider>
       <div className="space-y-6 h-full overflow-y-auto pb-8">
+        <AddVendorForm 
+          isOpen={isAddVendorFormOpen} 
+          onClose={() => setIsAddVendorFormOpen(false)} 
+          onSuccess={() => fetchData()}
+        />
         <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="text-sm text-gray-500 mb-4">
           Add and manage your vendors for BRSR compliance reporting. Each vendor will receive a unique access code and URL to submit their own BRSR form.
