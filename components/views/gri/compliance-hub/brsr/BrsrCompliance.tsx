@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useApiMutation } from '@/hooks/useApi';
 import { BrsrComplianceSection } from './BrsrComplianceSection';
+import { FloatingActionButtons } from '@/components/common/FloatingActionButtons';
 
 interface BrsrItem {
   brsrMasterId: string;
@@ -52,12 +53,14 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
     'POST'
   );
 
+  const payload: BrsrItemsPayload = {
+    fy: "2025-2026",
+    vendorId: "" // Use appropriate vendor ID when in vendor mode
+  };
+
   // Function to fetch BRSR items
   const fetchData = () => {
-    const payload: BrsrItemsPayload = {
-      fy: "2025-2026",
-      vendorId: "" // Use appropriate vendor ID when in vendor mode
-    };
+ 
     
     // Call the API and log the response
     fetchBrsrItems(payload, {
@@ -117,9 +120,11 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
   }
 
   return (
-    <div className="space-y-6 h-full overflow-y-auto pb-8">
+    <>
+      {/* Floating Action Buttons */}
+      <FloatingActionButtons payload={payload} />
       
-      
+      <div className="space-y-6 h-full overflow-y-auto pb-8 relative">
       {/* Overall Progress */}
       <div className="flex items-center space-x-6 bg-white p-6 rounded-lg shadow-sm">
         <div className="relative h-20 w-20">
@@ -163,5 +168,6 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
         />
       ))}
     </div>
+    </>
   );
 }
