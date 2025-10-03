@@ -52,11 +52,11 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
     'POST'
   );
 
-  // Call the API when the component mounts or when mode changes
-  useEffect(() => {
+  // Function to fetch BRSR items
+  const fetchData = () => {
     const payload: BrsrItemsPayload = {
       fy: "2025-2026",
-      vendorId: isComplianceMode ? "" : "some-vendor-id" // Use appropriate vendor ID when in vendor mode
+      vendorId: "" // Use appropriate vendor ID when in vendor mode
     };
     
     // Call the API and log the response
@@ -68,7 +68,12 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
         console.error('Error fetching BRSR items:', error);
       }
     });
-  }, [fetchBrsrItems, isComplianceMode]);
+  };
+  
+  // Call the API when the component mounts or when mode changes
+  useEffect(() => {
+    fetchData();
+  }, [isComplianceMode]); // Removed fetchBrsrItems from dependencies to avoid unnecessary re-fetches
   
   console.log('Current mode:', isComplianceMode ? 'Compliance Mode' : 'Vendor Mode');
   
@@ -154,6 +159,7 @@ export function BrsrCompliance({ isComplianceMode }: BrsrComplianceProps) {
           sectionNumber={index + 1}
           description={section.description}
           items={section.getBrsrItemResponseList}
+          onRefresh={fetchData}
         />
       ))}
     </div>
