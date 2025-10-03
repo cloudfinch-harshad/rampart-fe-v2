@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 import { MoreHorizontal } from 'lucide-react';
 import { SearchConfig } from '@/hooks/useTableFilters';
 import { AddVendorForm } from '@/components/forms/AddVendorForm';
+import { VendorSubmissionView } from '@/components/view/VendorSubmissionView';
 
 
 interface VendorData {
@@ -54,6 +55,8 @@ export function VendorManagement() {
   const [pageSize, setPageSize] = useState(10);
   const [openTooltipId, setOpenTooltipId] = useState<string | null>(null);
   const [isAddVendorFormOpen, setIsAddVendorFormOpen] = useState(false);
+  const [isSubmissionViewOpen, setIsSubmissionViewOpen] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState<VendorData | null>(null);
   
   // Use the API mutation hook to call the filter-brsr-vendors endpoint
   const { mutate: fetchVendors, data, isPending, isError, error } = useApiMutation<VendorListResponse, VendorListPayload>(
@@ -260,7 +263,14 @@ export function VendorManagement() {
   };
 
   const handleViewSubmission = (id: string) => {
-    toast.info(`Viewing submission for vendor ${id}`);
+    // Find the vendor data from the list
+    const vendor = data?.filterBrsrVendorResponseList.find(v => v.id === id) || null;
+    if (vendor) {
+      setSelectedVendor(vendor);
+      setIsSubmissionViewOpen(true);
+    } else {
+      toast.error("Vendor data not found");
+    }
     setOpenTooltipId(null); // Close tooltip after action
   };
 
@@ -315,6 +325,11 @@ export function VendorManagement() {
           isOpen={isAddVendorFormOpen} 
           onClose={() => setIsAddVendorFormOpen(false)} 
           onSuccess={() => fetchData()}
+        />
+        <VendorSubmissionView
+          isOpen={isSubmissionViewOpen}
+          onClose={() => setIsSubmissionViewOpen(false)}
+          vendor={selectedVendor}
         />
         <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="text-sm text-gray-500 mb-4">
