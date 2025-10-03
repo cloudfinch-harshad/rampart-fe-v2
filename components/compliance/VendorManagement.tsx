@@ -12,6 +12,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { SearchConfig } from '@/hooks/useTableFilters';
 import { AddVendorForm } from '@/components/forms/AddVendorForm';
 import { VendorSubmissionView } from '@/components/view/VendorSubmissionView';
+import { DeleteConfirmation } from '@/components/common/DeleteConfirmation';
 
 
 interface VendorData {
@@ -57,10 +58,19 @@ export function VendorManagement() {
   const [isAddVendorFormOpen, setIsAddVendorFormOpen] = useState(false);
   const [isSubmissionViewOpen, setIsSubmissionViewOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<VendorData | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [vendorToDelete, setVendorToDelete] = useState<{ id: string, name: string } | null>(null);
   
   // Use the API mutation hook to call the filter-brsr-vendors endpoint
   const { mutate: fetchVendors, data, isPending, isError, error } = useApiMutation<VendorListResponse, VendorListPayload>(
     'filter-brsr-vendors',
+    'POST'
+  );
+  
+  // Use the API mutation hook to call the delete-brsr-vendor endpoint
+  const { mutate: deleteVendor } = useApiMutation<{ success: boolean, message: string }, { id: string }>(
+    'delete-brsr-vendor',
     'POST'
   );
 
@@ -280,8 +290,43 @@ export function VendorManagement() {
   };
 
   const handleRemoveVendor = (id: string) => {
-    toast.info(`Removing vendor ${id}`);
+    // Find the vendor data from the list to show the name in the confirmation dialog
+    const vendor = data?.filterBrsrVendorResponseList.find(v => v.id === id);
+    if (vendor) {
+      setVendorToDelete({ id, name: vendor.vendorName });
+      setIsDeleteConfirmOpen(true);
+    } else {
+      toast.error("Vendor data not found");
+    }
     setOpenTooltipId(null); // Close tooltip after action
+  };
+  
+  const confirmDeleteVendor = () => {
+    if (!vendorToDelete) return;
+    
+    setIsDeleting(true);
+    
+    // Call the delete-brsr-vendor API with the vendor ID
+    deleteVendor({ id: vendorToDelete.id }, {
+      onSuccess: (response) => {
+        if (response.success) {
+          toast.success(response.message || 'Vendor removed successfully');
+          // Refresh the vendor list after successful deletion
+          fetchData();
+        } else {
+          toast.error(response.message || 'Failed to remove vendor');
+        }
+        setIsDeleting(false);
+        setIsDeleteConfirmOpen(false);
+        setVendorToDelete(null);
+      },
+      onError: (error) => {
+        console.error('Error removing vendor:', error);
+        toast.error('Failed to remove vendor');
+        setIsDeleting(false);
+        setIsDeleteConfirmOpen(false);
+      }
+    });
   };
 
   if (isPending && !data) {
@@ -330,6 +375,18 @@ export function VendorManagement() {
           isOpen={isSubmissionViewOpen}
           onClose={() => setIsSubmissionViewOpen(false)}
           vendor={selectedVendor}
+        />
+        <DeleteConfirmation
+          isOpen={isDeleteConfirmOpen}
+          onClose={() => {
+            setIsDeleteConfirmOpen(false);
+            setVendorToDelete(null);
+          }}
+          onConfirm={confirmDeleteVendor}
+          itemName={vendorToDelete?.name || ''}
+          itemType="Vendor"
+          isDeleting={isDeleting}
+          description="Are you sure you want to remove this vendor? This action cannot be undone and will permanently delete all associated data."
         />
         <div className="bg-white p-6 rounded-lg shadow-sm">
         <div className="text-sm text-gray-500 mb-4">
