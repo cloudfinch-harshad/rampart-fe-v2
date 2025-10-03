@@ -51,6 +51,7 @@ export function VendorManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [openTooltipId, setOpenTooltipId] = useState<string | null>(null);
   
   // Use the API mutation hook to call the filter-brsr-vendors endpoint
   const { mutate: fetchVendors, data, isPending, isError, error } = useApiMutation<VendorListResponse, VendorListPayload>(
@@ -89,6 +90,9 @@ export function VendorManagement() {
   useEffect(() => {
     fetchData();
   }, []);
+  
+  // We don't need a click outside handler since the Tooltip component
+  // from Shadcn UI already handles this behavior through the onOpenChange prop
 
   // Handle search
   const handleSearch = (value: string) => {
@@ -166,11 +170,17 @@ export function VendorManagement() {
       header: 'Actions',
       className: 'w-1/12',
       cell: (item: VendorData) => {
+        const isOpen = openTooltipId === item.id;
+        
+        const toggleTooltip = () => {
+          setOpenTooltipId(isOpen ? null : item.id);
+        };
+        
         return (
           <div className="flex justify-end">
-            <Tooltip>
+            <Tooltip open={isOpen} onOpenChange={(open) => !open && setOpenTooltipId(null)}>
               <TooltipTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
+                <Button variant="ghost" className="h-8 w-8 p-0" onClick={toggleTooltip}>
                   <span className="sr-only">Actions</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
@@ -178,7 +188,10 @@ export function VendorManagement() {
               <TooltipContent className="p-0 w-48" sideOffset={5}>
                 <div className="flex flex-col w-full bg-white rounded-md overflow-hidden">
                   <button 
-                    onClick={() => handleSendInvitation(item.id)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSendInvitation(item.id);
+                    }} 
                     className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left"
                   >
                     <Send className="mr-2 h-4 w-4" />
@@ -186,7 +199,10 @@ export function VendorManagement() {
                   </button>
                   <div className="h-px bg-gray-100 mx-1 my-0.5"></div>
                   <button 
-                    onClick={() => handleViewSubmission(item.id)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewSubmission(item.id);
+                    }} 
                     className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left"
                   >
                     <Eye className="mr-2 h-4 w-4" />
@@ -194,7 +210,10 @@ export function VendorManagement() {
                   </button>
                   <div className="h-px bg-gray-100 mx-1 my-0.5"></div>
                   <button 
-                    onClick={() => handleDownloadData(item.id)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownloadData(item.id);
+                    }} 
                     className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left"
                   >
                     <FileDown className="mr-2 h-4 w-4" />
@@ -202,7 +221,10 @@ export function VendorManagement() {
                   </button>
                   <div className="h-px bg-gray-100 mx-1 my-0.5"></div>
                   <button 
-                    onClick={() => handleRemoveVendor(item.id)} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveVendor(item.id);
+                    }} 
                     className="flex items-center px-3 py-1.5 text-sm hover:bg-gray-50 w-full text-left text-red-600 hover:text-red-700"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -232,18 +254,22 @@ export function VendorManagement() {
 
   const handleSendInvitation = (id: string) => {
     toast.info(`Sending invitation to vendor ${id}`);
+    setOpenTooltipId(null); // Close tooltip after action
   };
 
   const handleViewSubmission = (id: string) => {
     toast.info(`Viewing submission for vendor ${id}`);
+    setOpenTooltipId(null); // Close tooltip after action
   };
 
   const handleDownloadData = (id: string) => {
     toast.info(`Downloading data for vendor ${id}`);
+    setOpenTooltipId(null); // Close tooltip after action
   };
 
   const handleRemoveVendor = (id: string) => {
     toast.info(`Removing vendor ${id}`);
+    setOpenTooltipId(null); // Close tooltip after action
   };
 
   if (isPending && !data) {
