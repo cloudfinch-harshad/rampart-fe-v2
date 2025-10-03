@@ -102,11 +102,8 @@ export function Pagination({
                   size="icon"
                   onClick={() => onPageChange(num)}
                   className={cn(
-                    "h-8 w-8 rounded-full text-sm font-medium transition-colors",
-                    num === page ? 
-                      "bg-primary text-primary-foreground hover:bg-primary/90" : 
-                      "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  )}
+                    "size-8 rounded-full text-sm font-medium transition-colors",
+                   )}
                 >
                   {num}
                 </Button>

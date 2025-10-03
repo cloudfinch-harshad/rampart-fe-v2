@@ -336,7 +336,7 @@ export function DataTable<T>({
       </div>
 
       {/* Table */}
-      <div className="rounded-md border shadow-sm overflow-x-auto">
+      <div className="rounded-md  shadow-sm overflow-x-auto">
         <Table className="min-w-full">
           <TableHeader>
             <TableRow className="bg-muted/50">
